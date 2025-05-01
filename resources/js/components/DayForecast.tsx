@@ -3,9 +3,10 @@ import { WiRaindrop, WiDaySunny, WiCloudy } from "react-icons/wi";
 
 interface DayForecastProps {
     forecast: GameForecast;
+    currentDay: number;
 }
 
-export const DayForecast = ({ forecast }: DayForecastProps) => {
+export const DayForecast = ({ forecast, currentDay }: DayForecastProps) => {
     const getWeatherIcon = (count: number) => {
         if (count > 10) return <WiDaySunny className="text-warning" />;
         if (count > 5) return <WiCloudy className="text-info" />;
@@ -15,7 +16,7 @@ export const DayForecast = ({ forecast }: DayForecastProps) => {
     return (
         <div className="card mb-4">
             <div className="card-header bg-info text-white">
-                <h2 className="h5 mb-0">Today's Forecast</h2>
+                <h2 className="h5 mb-0">Day {currentDay} Forecast</h2>
             </div>
             <div className="card-body">
                 <div className="row">

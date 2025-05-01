@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GameState } from "@/types/game";
+import { GameState, FishSize, FishColor } from "@/types/game";
 
 const api = axios.create({
     baseURL: "/api",
@@ -19,6 +19,21 @@ export const makeMove = async (
         rodType,
         baitType,
         baitQuantity,
+    });
+    return response.data;
+};
+
+export const processDay = async (
+    skipDay: boolean,
+    rodType: FishSize | null,
+    baitType: FishColor | null,
+    baitQuantity: number | null
+) => {
+    const response = await axios.post("/api/game/move", {
+        skipDay,
+        rodType: skipDay ? null : rodType,
+        baitType: skipDay ? null : baitType,
+        baitQuantity: skipDay ? null : baitQuantity,
     });
     return response.data;
 };

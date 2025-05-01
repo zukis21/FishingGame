@@ -5,21 +5,33 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import { useEffect } from "react";
 
 function App() {
-    const { gameState, loading, error, handleMove, resetGame } =
-        useFishingGame();
+    const {
+        gameState,
+        loading,
+        error,
+        handleMove,
+        initializeGame,
+        handleAdvanceDay,
+    } = useFishingGame();
 
-    if (error) return <ErrorMessage message={error} onRetry={resetGame} />;
+    const handleReset = () => {
+        initializeGame();
+    };
+
+    if (error) return <ErrorMessage message={error} onRetry={handleReset} />;
     if (!gameState) return <LoadingSpinner />;
 
     return (
         <div className="min-h-screen bg-blue-50 p-4">
             <FishingGame
                 gameState={gameState}
-                onMove={handleMove}
                 loading={loading}
-                onReset={resetGame}
+                onMove={handleMove}
+                onAdvanceDay={handleAdvanceDay}
+                onReset={handleReset}
             />
         </div>
     );

@@ -16,5 +16,5 @@ export interface GameState {
     day: number;
     forecast: GameForecast;
     inventory: Fish[];
-    result: "win" | "lose" | null;
+    result: "win" | "lose" | "draw" | null;
 }

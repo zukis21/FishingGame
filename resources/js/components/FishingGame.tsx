@@ -25,7 +25,8 @@ interface FishingGameProps {
         rodType: FishSize,
         baitType: FishColor,
         baitQuantity: number
-    ) => void;
+    ) => Promise<void>;
+    onAdvanceDay: () => Promise<void>;
     onReset: () => void;
 }
 
@@ -33,11 +34,13 @@ export const FishingGame = ({
     gameState,
     loading,
     onMove,
+    onAdvanceDay,
     onReset,
 }: FishingGameProps) => {
     const [rodType, setRodType] = useState<FishSize>("small");
     const [baitType, setBaitType] = useState<FishColor>("red");
     const [baitQuantity, setBaitQuantity] = useState(1);
+    const [showResult, setShowResult] = useState(false);
 
     const maxBaitQuantity = useMemo(() => {
         const remainingGold = gameState.gold - ROD_PRICES[rodType];
@@ -48,8 +51,25 @@ export const FishingGame = ({
         setBaitQuantity((prev) => Math.min(prev, maxBaitQuantity || 1));
     }, [maxBaitQuantity]);
 
+    const handleFish = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await onMove(rodType, baitType, baitQuantity);
+            setShowResult(true);
+        } catch (error) {
+            console.error("Fishing error:", error);
+        }
+    };
+
+    const handleContinue = async () => {
+        setShowResult(false);
+        await onAdvanceDay();
+    };
+
     const totalCost =
         ROD_PRICES[rodType] + baitQuantity * BAIT_PRICES[baitType];
+
+    if (!gameState) return null;
 
     return (
         <div className="container py-4">
@@ -73,16 +93,12 @@ export const FishingGame = ({
                 </div>
 
                 <div className="card-body">
-                    <DayForecast forecast={gameState.forecast} />
+                    <DayForecast
+                        forecast={gameState.forecast}
+                        currentDay={gameState.day}
+                    />
 
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            if (maxBaitQuantity > 0)
-                                onMove(rodType, baitType, baitQuantity);
-                        }}
-                        className="mb-4"
-                    >
+                    <form onSubmit={handleFish} className="mb-4">
                         <div className="row g-3">
                             <div className="col-md-4">
                                 <div className="card h-100">
@@ -255,8 +271,17 @@ export const FishingGame = ({
                 </div>
             </div>
 
-            {gameState.result && (
-                <ResultModal result={gameState.result} onClose={onReset} />
+            {showResult && gameState.result && (
+                <ResultModal
+                    result={gameState.result}
+                    currentGold={gameState.gold}
+                    currentDay={gameState.day}
+                    onContinue={handleContinue}
+                    onNewGame={() => {
+                        setShowResult(false);
+                        onReset();
+                    }}
+                />
             )}
         </div>
     );
